@@ -1,12 +1,12 @@
-from typing import List
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
+
+Base = declarative_base()
 
 class Settings(BaseSettings):
 
     API_V1_STR: str = '/api/v1'
     DB_URL: str
-    DBBaseModel = declarative_base()
 
     JWT_SECRET: str
     ALGORITHM: str = 'HS256'
@@ -18,6 +18,5 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
     )
-
 
 settings: Settings = Settings()
