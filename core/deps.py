@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from core.database import Session
 from core.auth import OAuth2_schema
 from core.configs import settings
-from models.usuarios_model import UsuarioModel
+from models.usuario_model import UsuarioModel
 
 class TokenData(BaseModel):
     subject: Optional[str] = None
