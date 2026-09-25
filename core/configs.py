@@ -1,7 +1,4 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from sqlalchemy.orm import declarative_base
-
-Base = declarative_base()
 
 class Settings(BaseSettings):
 

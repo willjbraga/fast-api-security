@@ -4,7 +4,7 @@ from sqlalchemy.dialects.postgresql import ENUM as PGEnum
 
 from enum import Enum
 
-from core.configs import Base
+from core.base import Base
 
 class TipoAcessoEnum(str, Enum):
     ADMIN = "admin"

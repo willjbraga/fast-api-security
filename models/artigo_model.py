@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 
 from sqlalchemy.orm import Mapped, mapped_column
 
-from core.configs import Base
+from core.base import Base
 
 class ArtigoModel(Base):
     __tablename__ = 'artigos'
