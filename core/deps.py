@@ -1,4 +1,4 @@
-from typing import AsyncGenerator, Optional
+from typing import AsyncGenerator, AsyncSessionLocal
 
 from fastapi import Depends, HTTPException, status
 import jwt
@@ -13,23 +13,19 @@ from core.configs import settings
 from models.usuario_model import UsuarioModel
 
 class TokenData(BaseModel):
-    subject: Optional[str] = None
+    user_id: int
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
-     
-     session: AsyncSession = Session()
-
-     try:
+     async with AsyncSessionLocal() as session: 
           yield session
-     finally:
-          await session.close()
 
 async def get_current_user(
      db: AsyncSession = Depends(get_session),
-     token: str = Depends(OAuth2_schema)) -> UsuarioModel:
+     token: str = Depends(OAuth2_schema)
+) -> UsuarioModel:
      credential_exception: HTTPException = HTTPException(
           status_code=status.HTTP_401_UNAUTHORIZED,
-          detail="Não foi possível autenticar a credencial",
+          detail="Credenciais inválidas ou expiradas",
           headers={"WWW-Authenticate": "Bearer"}
      )
 
@@ -38,23 +34,24 @@ async def get_current_user(
                token,
                settings.JWT_SECRET,
                algorithms=[settings.ALGORITHM],
-               options={"verify_aud": False}
+               options={
+                    'verify_aud': False,
+                    'require': ['exp', 'iat', 'sub', 'type'],
+               },
           )
-          username: str = payload.get("sub")
-
-          if username is None:
+          
+          if payload.get('type') != 'access_token': 
                raise credential_exception
+          
+          user_id: str = payload.get("sub")
 
-          token_data: TokenData = TokenData(username=username)
+     except (jwt.exceptions.InvalidTokenError, ValueError, TypeError, KeyError):
+          raise credential_exception from None
 
-     except jwt.exceptions.InvalidTokenError:
-          raise credential_exception
-
-     query = select(UsuarioModel).where(
-          UsuarioModel.id == int(token_data.username)
-     )
-
-     result = await db.execute(query)
+     result = await db.execute(
+          select(UsuarioModel).where(UsuarioModel.id == user_id
+     ))
+     
 
      usuario: UsuarioModel | None = result.scalar_one_or_none()
 

@@ -1,30 +1,26 @@
-from typing import Optional
-from typing import List
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from models.usuario_model import TipoAcessoEnum
 
-from pydantic import BaseModel, EmailStr
+class UsuarioCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
 
-from schemas.artigo_schema import ArtigoSchema
-
-class UsuarioSchemaBase(BaseModel):
-    id: Optional[int] = None
-    nome: str
-    sobrenome: str
+    nome: str = Field(min_length=1, max_length=256)
+    sobrenome: str | None = Field(None, max_length=256)
     email: EmailStr
-    eh_admin: bool = False
-    
-    class Config:
-        orm_mode = True
-        
-class UsuarioSchemaCreate(UsuarioSchemaBase):
-    senha: str
+    senha: str = Field(min_length=8, max_length=128)
 
-class UsuarioSchemaArtigos(UsuarioSchemaBase):
-    artigos: Optional[List[ArtigoSchema]]
-    
-class UsuarioSchemaUp(UsuarioSchemaBase):
-    nome: Optional[str]
-    sobrenome: Optional[str]
-    email: Optional[EmailStr]
-    senha: Optional[str]
-    eh_admin: Optional[bool]
-    
+class UsuarioUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    nome: str | None = Field(None, min_length=1, max_length=256)
+    sobrenome: str | None = Field(None, max_length=256)
+    email: EmailStr | None = None
+
+class UsuarioResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    nome: str
+    sobrenome: str | None
+    email: EmailStr
+    acesso: TipoAcessoEnum
