@@ -12,7 +12,7 @@ import jwt
 
 from models.usuario_model import UsuarioModel
 from core.configs import settings
-from core.security import verificar_senha
+from core.security import verificar_senha, DUMMY_HASH
 
 from pydantic import EmailStr
 
@@ -27,9 +27,10 @@ async def autenticar(email: EmailStr, senha: str, db: AsyncSession) -> UsuarioMo
         )
     )
     
-    usuario: UsuarioModel = result.scalar_one_or_none()
+    usuario: UsuarioModel | None = result.scalar_one_or_none()
 
     if usuario is None:
+        verificar_senha(senha, DUMMY_HASH)
         return None
 
     if not verificar_senha(senha, usuario.senha):
@@ -37,20 +38,14 @@ async def autenticar(email: EmailStr, senha: str, db: AsyncSession) -> UsuarioMo
 
     return usuario
 
-def _normalizar_role(role: TipoAcessoEnum | str) -> str:
-    if isinstance(role, TipoAcessoEnum):
-        return role.value
-
-    return role
-
-def _criar_token(tipo_token: str, tempo_vida: timedelta, sub: str, role: str) -> str:
+def _criar_token(tipo_token: str, tempo_vida: timedelta, sub: str, role: TipoAcessoEnum) -> str:
 
     agora = datetime.now(timezone.utc)
 
     payload = {
         "type" : tipo_token,
         "sub" : str(sub),
-        "role": _normalizar_role(role),
+        "role": role.value,
         "iat" : agora,
         "exp" : agora + tempo_vida
     }

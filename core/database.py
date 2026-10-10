@@ -14,7 +14,7 @@ engine: AsyncEngine = create_async_engine(
     pool_pre_ping=True,
 )
 
-Session = async_sessionmaker(
+AsyncSessionLocal = async_sessionmaker(
     bind = engine,
     #class_ =  AsyncSession, -> async_sessionmaker já usar AsynccSession por padrão
     #autocommit = False, -> no modelo novo usa transações explicitas e não necessta de autocimmit

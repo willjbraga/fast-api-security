@@ -1,4 +1,4 @@
-from typing import AsyncGenerator, AsyncSessionLocal
+from typing import AsyncGenerator
 
 from fastapi import Depends, HTTPException, status
 import jwt
@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from pydantic import BaseModel
 
-from core.database import Session
+from core.database import AsyncSessionLocal
 from core.auth import OAuth2_schema
 from core.configs import settings
 from models.usuario_model import UsuarioModel
