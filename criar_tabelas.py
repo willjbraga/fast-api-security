@@ -1,4 +1,5 @@
 from core.base import Base
+<<<<<<< HEAD
 from core.configs import settings
 
 from models.__init__ import __all__
@@ -6,3 +7,19 @@ from models.__init__ import __all__
 def criar_trabela() -> None:
     pass
 
+=======
+from core.database import engine
+
+async def create_tables() -> None:
+    import models.__init__
+    print('Criando as tabelas no banco de dados')
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+    print ('Tabelas criadas com sucesso!')
+    
+if __name__ == '__main__':
+    import asyncio
+    asyncio.run(create_tables())
+>>>>>>> 967fdb59d34d9f5fa9e74f97d481c9671288f6b5
